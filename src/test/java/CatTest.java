@@ -15,7 +15,7 @@ public class CatTest {
 
     @Test
     public void testGetSound() {
-        // Создать объект Cat — мок не нужен, метод не зависит от зависимостей
+        // Создать объект Cat
         Cat cat = new Cat(Mockito.mock(Feline.class));
 
         // Вызвать тестируемый метод
