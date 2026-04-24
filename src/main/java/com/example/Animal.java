@@ -17,4 +17,9 @@ public class Animal {
     public String getFamily() {
         return "Существует несколько семейств: заячьи, беличьи, мышиные, кошачьи, псовые, медвежьи, куньи";
     }
+
+    // Метод для получения количества котят
+    public int getKittens() {
+        return 3;
+    }
 }
