@@ -1,4 +1,5 @@
 import com.example.Feline;
+import com.example.Animal;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -9,23 +10,47 @@ import static org.mockito.Mockito.*;
 
 public class FelineTest {
     @Test
-    public void testEatMeat() throws Exception {
-        // Создать шпион (spy) для Feline
-        Feline feline = spy(new Feline());
+    public void testEatMeat_ReturnsExpectedFoodList() throws Exception {
 
+        // Создаётся мок для зависимости (Animal), а не для тестируемого объекта
+        Animal mockAnimal = Mockito.mock(Animal.class);
         List<String> expectedFood = List.of("Животные", "Птицы", "Рыба");
 
-        // Настроить поведение метода getFood
-        doReturn(expectedFood).when(feline).getFood("Хищник");
+        try {
+            Mockito.when(mockAnimal.getFood("Хищник")).thenReturn(expectedFood);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 
-        // Вызвать тестируемый метод
+        // Создаётся реальный объект Feline, ему передаётся мок-зависимость
+        Feline feline = new Feline();
+        feline.setAnimal(mockAnimal); // внедряется зависимость
+
         List<String> actualFood = feline.eatMeat();
 
-        // Проверить результат
         assertEquals(expectedFood, actualFood);
+    }
 
-        // Проверить, что метод getFood был вызван ровно один раз
-        verify(feline, Mockito.times(1)).getFood("Хищник");
+    // Создан отдельный тест для Mockito.verify
+    @Test
+    public void testEatMeat_CallsGetFoodWithCorrectParameterOnce() throws Exception {
+        Animal mockAnimal = Mockito.mock(Animal.class);
+
+        // Создать реальный объект Feline с мок-зависимостью
+        Feline feline = new Feline();
+        feline.setAnimal(mockAnimal);
+
+        try {
+            feline.eatMeat();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        try {
+            Mockito.verify(mockAnimal, Mockito.times(1)).getFood("Хищник");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Test
