@@ -2,82 +2,80 @@ package org.example;
 
 import com.example.Feline;
 import com.example.Lion;
-import org.junit.Before;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
 import org.junit.Test;
-import org.mockito.Mockito;
 
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@RunWith(Parameterized.class)
-public class LionParameterizedTest {
+public class LionTest {
 
-    // Параметры для теста
-    private String sex;
-    private boolean expectedHasMane;
-    private int expectedKittens;
-    private List<String> expectedFood;
-
-    private Feline mockFeline;
-
-    public LionParameterizedTest(String sex, boolean expectedHasMane, int expectedKittens, List<String> expectedFood) {
-        this.sex = sex;
-        this.expectedHasMane = expectedHasMane;
-        this.expectedKittens = expectedKittens;
-        this.expectedFood = expectedFood;
-    }
-
-    @Parameterized.Parameters(name = "Тестовые данные: пол={0}, грива={1}, котята={2}")
-    public static Collection<Object[]> data() {
-        return Arrays.asList(new Object[][] {
-                {"Самец", true, 5, Arrays.asList("Животные", "Птицы", "Рыба")},
-                {"Самка", false, 3, Arrays.asList("Животные", "Птицы")}
-        });
-    }
-
-    @Before
-    public void setUp() {
-        // Создать мок
-        mockFeline = Mockito.mock(Feline.class);
-
-        // Настроить мок
-        try {
-            when(mockFeline.getKittens()).thenReturn(expectedKittens);
-            when(mockFeline.getFamily()).thenReturn("Кошачьи");
-            // Настроить getFood(String)
-            when(mockFeline.getFood("Хищник")).thenReturn(expectedFood);
-        } catch (Exception e) {
-            throw new RuntimeException("Ошибка настройки мока", e);
-        }
+    @Test(expected = Exception.class)
+    public void testConstructorWithWrongSex() throws Exception {
+        Feline mockFeline = mock(Feline.class);
+        new Lion("Неизвестный пол", mockFeline);
     }
 
     @Test
-    public void testHasManeCorrectValue() throws Exception {
-        Lion lion = new Lion(sex, mockFeline);
-        assertEquals(expectedHasMane, lion.doesHaveMane());
+    public void testGetKittensDelegatesToFeline() throws Exception {
+        Feline mockFeline = mock(Feline.class);
+        when(mockFeline.getKittens()).thenReturn(5);
+
+        Lion lion = new Lion("Самка", mockFeline);
+        int kittens = lion.getKittens();
+
+        assertEquals(5, kittens);
     }
 
     @Test
-    public void testGetKittensReturnsCorrectCount() throws Exception {
-        Lion lion = new Lion(sex, mockFeline);
-        assertEquals(expectedKittens, lion.getKittens());
+    public void testHasManeLogicBranchCoverage() throws Exception {
+        Feline mockFeline = mock(Feline.class);
+
+        // Случай 1: самец (hasMane = true)
+        Lion maleLion = new Lion("Самец", mockFeline);
+        assertTrue(maleLion.doesHaveMane());
+
+        // Случай 2: самка (hasMane = false)
+        Lion femaleLion = new Lion("Самка", mockFeline);
+        assertFalse(femaleLion.doesHaveMane());
+    }
+
+    @Test(expected = Exception.class)
+    public void testGetFoodThrowsExceptionWhenFelineThrows() throws Exception {
+        Feline mockFeline = mock(Feline.class);
+        when(mockFeline.getFood("Хищник")).thenThrow(new Exception("Ошибка получения пищи"));
+
+        Lion lion = new Lion("Самец", mockFeline);
+        lion.getFood();
     }
 
     @Test
-    public void testGetFoodReturnsFromDependency() throws Exception {
-        Lion lion = new Lion(sex, mockFeline);
-        assertEquals(expectedFood, lion.getFood());
+    public void testGetFoodReturnsFromFeline() throws Exception {
+        Feline mockFeline = mock(Feline.class);
+        List<String> expectedFood = List.of("Животные", "Птицы", "Рыба");
+        when(mockFeline.getFood("Хищник")).thenReturn(expectedFood);
+
+        Lion lion = new Lion("Самец", mockFeline);
+        List<String> actualFood = lion.getFood();
+
+        assertEquals(expectedFood, actualFood);
     }
 
     @Test
-    public void testGetFamilyReturnsFromFeline() throws Exception {
-        Lion lion = new Lion(sex, mockFeline);
-        assertEquals("Кошачьи", lion.getFamily());
+    public void testGetFamilyDelegatesToFeline() throws Exception {
+        Feline mockFeline = mock(Feline.class);
+        when(mockFeline.getFamily()).thenReturn("Кошачьи");
+
+        Lion lion = new Lion("Самец", mockFeline);
+        String family = lion.getFamily();
+
+        assertEquals("Кошачьи", family);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+   public void testConstructorWithNullFeline() throws Exception {
+        new Lion("Самец", null);
     }
 }
