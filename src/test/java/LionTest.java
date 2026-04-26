@@ -1,100 +1,75 @@
 package org.example;
 
-import com.example.Animal;
+import com.example.Feline;
 import com.example.Lion;
 import org.junit.Test;
 import org.mockito.Mockito;
+
+import java.util.List;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 
 public class LionTest {
-    
 
     @Test(expected = Exception.class)
     public void testConstructorWithInvalidSex() throws Exception {
-      // Создать мок Animal
-      Animal mockAnimal = mock(Animal.class);
+        // Создать мок Feline
+        Feline mockFeline = mock(Feline.class);
 
         // Попытка создать Lion с некорректным полом — должно вызвать Exception
-        new Lion("Неизвестный пол", mockAnimal);
+        new Lion("Неизвестный пол", mockFeline);
     }
 
-    @Test
-    public void testAnimalInjection() throws Exception {
-      // Создать мок Animal
-      Animal mockAnimal = Mockito.mock(Animal.class);
-
-        // Создать Lion
-      Lion lion = new Lion("Самец", mockAnimal);
-
-        // Проверить, что зависимость animal была корректно внедрена
-      assertEquals(mockAnimal, lion.animal);
-    }
 
     @Test
     public void testDefaultKittensCountInitialization() throws Exception {
-      // Создать мок Animal
-      Animal mockAnimal = Mockito.mock(Animal.class);
+        // Создать мок Feline
+        Feline mockFeline = Mockito.mock(Feline.class);
 
-        // Создать Lion с кастомным количеством котят по умолчанию (7)
-        Lion lion = new Lion("Самка", mockAnimal, 7);
+        // Создать Lion (defaultKittensCount всегда 2)
+        Lion lion = new Lion("Самка", mockFeline);
 
         // Проверить, что defaultKittensCount был корректно инициализирован
-        assertEquals(7, lion.defaultKittensCount);
+        assertEquals(2, lion.defaultKittensCount);
     }
 
     @Test
     public void testGetKittensWithMinValue() throws Exception {
-      // Создать мок Animal
-      Animal mockAnimal = Mockito.mock(Animal.class);
+        // Создать мок Feline
+        Feline mockFeline = Mockito.mock(Feline.class);
 
-      // Создать Lion с минимальным количеством котят по умолчанию (0)
-      Lion lion = new Lion("Самка", mockAnimal, 0);
-
-        // Вызвать тестируемый метод без параметров
-        int kittens = lion.getKittens();
-
-        // Проверить результат (возвращает 0 — значение, установленное при создании объекта)
-        assertEquals(0, kittens);
-    }
-
-    @Test
-    public void testGetKittensWithMaxValue() throws Exception {
-      // Создать мок Animal
-      Animal mockAnimal = Mockito.mock(Animal.class);
-
-      // Создать Lion с большим количеством котят по умолчанию (100)
-      Lion lion = new Lion("Самка", mockAnimal, 100);
+        // Создать Lion с defaultKittensCount = 2
+        Lion lion = new Lion("Самка", mockFeline);
 
         // Вызвать тестируемый метод без параметров
         int kittens = lion.getKittens();
 
-        // Проверить результат (возвращает 100 — значение, установленное при создании объекта)
-        assertEquals(100, kittens);
+        // Проверить результат
+        assertEquals(2, kittens);
     }
 
     @Test
     public void testHasManeLogicBranchCoverage() throws Exception {
-      // Тестируем обе ветви логики в конструкторе: hasMane = true и hasMane = false
-      Animal mockAnimal = Mockito.mock(Animal.class);
+        // Тестировать обе ветви логики в конструкторе: hasMane = true и hasMane = false
+        Feline mockFeline = Mockito.mock(Feline.class);
 
-      // Случай 1: самец (hasMane = true)
-      Lion maleLion = new Lion("Самец", mockAnimal);
-      assertTrue(maleLion.hasManeTrue());
+        // Случай 1: самец (hasMane = true)
+        Lion maleLion = new Lion("Самец", mockFeline);
+        assertTrue(maleLion.hasManeTrue());
 
         // Случай 2: самка (hasMane = false)
-        Lion femaleLion = new Lion("Самка", mockAnimal);
+        Lion femaleLion = new Lion("Самка", mockFeline);
         assertFalse(femaleLion.hasManeTrue());
     }
 
     @Test
     public void testGetFoodExceptionHandling() throws Exception {
-      // Создать мок Animal, который выбрасывает Exception при вызове getFood
-      Animal mockAnimal = Mockito.mock(Animal.class);
-      Mockito.when(mockAnimal.getFood("Хищник")).thenThrow(new Exception("Ошибка получения пищи"));
+        // Создать мок Feline, который выбрасывает Exception при вызове eatMeat
+        Feline mockFeline = Mockito.mock(Feline.class);
+        Mockito.when(mockFeline.eatMeat()).thenThrow(new Exception("Ошибка получения пищи"));
 
-      Lion lion = new Lion("Самец", mockAnimal);
+        Lion lion = new Lion("Самец", mockFeline);
 
         try {
             lion.getFood();
@@ -103,5 +78,44 @@ public class LionTest {
             // Exception при ошибке получения пищи
             assertTrue(true);
         }
+    }
+
+    @Test
+    public void testGetFood_ReturnsFromFeline() throws Exception {
+        // Создать мок Feline с ожидаемым результатом
+        Feline mockFeline = Mockito.mock(Feline.class);
+        List<String> expectedFood = List.of("Животные", "Птицы", "Рыба");
+        Mockito.when(mockFeline.eatMeat()).thenReturn(expectedFood);
+
+        Lion lion = new Lion("Самец", mockFeline);
+
+        // Вызвать метод getFood
+        List<String> actualFood = lion.getFood();
+
+        // Проверить, что результат соответствует ожидаемому
+        assertEquals(expectedFood, actualFood);
+    }
+
+    @Test
+    public void testGetSex_ReturnsCorrectValue() throws Exception {
+        Feline mockFeline = Mockito.mock(Feline.class);
+
+        // Создать льва с полом "Самец"
+        Lion maleLion = new Lion("Самец", mockFeline);
+        assertEquals("Самец", maleLion.getSex());
+
+        // Создать льва с полом "Самка"
+        Lion femaleLion = new Lion("Самка", mockFeline);
+        assertEquals("Самка", femaleLion.getSex());
+    }
+
+    @Test
+    public void testGetKittens_WithParameter_AlwaysReturnsGivenValue() throws Exception {
+        Feline mockFeline = Mockito.mock(Feline.class);
+        Lion lion = new Lion("Самец", mockFeline);
+        int customKittens = 7;
+
+        // Проверить метод getKittens(int) с явным указанием количества
+        assertEquals(customKittens, lion.getKittens(customKittens));
     }
 }
