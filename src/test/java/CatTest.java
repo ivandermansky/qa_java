@@ -16,17 +16,17 @@ public class CatTest {
     private List<String> expectedFood;
 
     @Before
-    public void setUp() {
+    public void setUp() throws Exception {
         // Создать мок Feline один раз для всех тестов
         mockFeline = Mockito.mock(Feline.class);
 
-        // Настроить мок для метода eatMeat()
-        expectedFood = List.of("Мыши", "Птица", "Рыба");
-        try {
-            Mockito.when(mockFeline.eatMeat()).thenReturn(expectedFood);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        // Ожидаемый список еды
+        expectedFood = List.of("Животные", "Птицы", "Рыба");
+
+        Mockito.when(mockFeline.eatMeat()).thenReturn(expectedFood);
+
+        Mockito.when(mockFeline.getKittens()).thenReturn(5);
+        Mockito.when(mockFeline.getFamily()).thenReturn("Кошачьи");
 
         // Инициализировать Cat с моком Feline
         cat = new Cat(mockFeline);
@@ -39,71 +39,45 @@ public class CatTest {
     }
 
     @Test
-    public void testGetFood_ReturnsExpectedList() throws Exception {
+    public void testGetFoodReturnsExpectedList() throws Exception {
         List<String> actualFood = cat.getFood();
         assertEquals(expectedFood, actualFood);
     }
 
     @Test
-    public void testGetFood_CallsEatMeatOnce() {
-        try {
-            cat.getFood();
-            verify(mockFeline, times(1)).eatMeat();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    public void testGetFoodCallsEatMeatOnce() throws Exception {
+        cat.getFood();
+        verify(mockFeline, times(1)).eatMeat();
     }
 
-    // Тест: проверка возвращаемого значения метода getKittens() без параметров
+
     @Test
-    public void testFelineGetKittensNoParam_ReturnsConfiguredValue() {
-        // Настроить мок: при вызове getKittens() вернуть 5
+    public void testFelineGetKittensNoParamReturnsConfiguredValue() {
         when(mockFeline.getKittens()).thenReturn(5);
-
-        // Вызвать метод
         int kittens = mockFeline.getKittens();
-
-        // Проверить, что мок возвращает ожидаемое значение
         assertEquals(5, kittens);
     }
 
-    // Тест: проверка, что метод getKittens() был вызван ровно один раз
+    // Мок ведет себя как реальный объект и возвращает 1
     @Test
-    public void testFelineGetKittensNoParam_CalledExactlyOnce() {
-        when(mockFeline.getKittens()).thenReturn(5);
-
-        // Вызываем метод один раз
+    public void testFelineGetKittensNoParamCalledExactlyOnce() {
+        when(mockFeline.getKittens()).thenReturn(1);
         mockFeline.getKittens();
-
-        // Проверяем, что метод был вызван ровно один раз без параметров
         verify(mockFeline, times(1)).getKittens();
     }
 
-    // Тесты: граничные значения для getKittens(int)
     @Test
- public void testFelineGetKittens_CalledOnceWithZeroParameter() {
-        // Настройка мока: при вызове с 0 вернуть 0
+    public void testFelineGetKittensCalledOnceWithZeroParameter() {
         when(mockFeline.getKittens(0)).thenReturn(0);
-
-        // Вызов метода с параметром 0
         mockFeline.getKittens(0);
-
-        // Проверка, что метод был вызван ровно один раз с параметром 0
         verify(mockFeline, times(1)).getKittens(0);
     }
 
-// Тест: проверка, что метод getKittens() вызван один раз с параметром 999
     @Test
-public void testFelineGetKittens_CalledOnceWithLargeNumber() {
+    public void testFelineGetKittensCalledOnceWithLargeNumber() {
         int largeNumber = 999;
-
-        // Настройка мока: при вызове с 999 вернуть 999
         when(mockFeline.getKittens(largeNumber)).thenReturn(largeNumber);
-
-        // Вызов метода с большим числом
         mockFeline.getKittens(largeNumber);
-
-        // Проверка, что метод был вызван ровно один раз с параметром 999
         verify(mockFeline, times(1)).getKittens(largeNumber);
     }
 }
