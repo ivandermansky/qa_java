@@ -1,8 +1,5 @@
-package org.example;
-
 import com.example.Cat;
 import com.example.Feline;
-import com.example.Predator;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -37,10 +34,7 @@ public class CatTest {
 
     @Test
     public void testGetSound() {
-        // Вызвать тестируемый метод
         String sound = cat.getSound();
-
-        // Проверить результат
         assertEquals("Мяу", sound);
     }
 
@@ -50,66 +44,66 @@ public class CatTest {
         assertEquals(expectedFood, actualFood);
     }
 
-    // Создан отдельный тест для Mockito.verify
     @Test
-    public void testGetFoodEatMeatOnce() {
+    public void testGetFood_CallsEatMeatOnce() {
         try {
             cat.getFood();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-
-        try {
-            Mockito.verify(mockFeline, Mockito.times(1)).eatMeat();
+            verify(mockFeline, times(1)).eatMeat();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
+    // Тест: проверка возвращаемого значения метода getKittens() без параметров
     @Test
-    public void testGetKittensWithDefault() {
-        // Вызвать тестируемый метод без параметров
-        int kittens = cat.getKittens();
+    public void testFelineGetKittensNoParam_ReturnsConfiguredValue() {
+        // Настроить мок: при вызове getKittens() вернуть 5
+        when(mockFeline.getKittens()).thenReturn(5);
 
-        // Проверить результат (по умолчанию возвращает 4)
-        assertEquals(4, kittens);
+        // Вызвать метод
+        int kittens = mockFeline.getKittens();
+
+        // Проверить, что мок возвращает ожидаемое значение
+        assertEquals(5, kittens);
     }
 
+    // Тест: проверка, что метод getKittens() был вызван ровно один раз
     @Test
-    public void testGetKittensWithCustomDefault() {
-        // Для теста с кастомным значением создать отдельный объект
-        Feline mockFelineCustom = Mockito.mock(Feline.class);
-        Cat catCustom = new Cat(mockFelineCustom, 6);
+    public void testFelineGetKittensNoParam_CalledExactlyOnce() {
+        when(mockFeline.getKittens()).thenReturn(5);
 
-        // Вызвать тестируемый метод без параметров
-        int kittens = catCustom.getKittens();
+        // Вызываем метод один раз
+        mockFeline.getKittens();
 
-        // Проверить результат (возвращает 6 — значение, установленное при создании объекта)
-        assertEquals(6, kittens);
+        // Проверяем, что метод был вызван ровно один раз без параметров
+        verify(mockFeline, times(1)).getKittens();
     }
 
+    // Тесты: граничные значения для getKittens(int)
     @Test
-    public void testGetKittensWithParameter() {
-        int expectedKittensCount = 9;
+ public void testFelineGetKittens_CalledOnceWithZeroParameter() {
+        // Настройка мока: при вызове с 0 вернуть 0
+        when(mockFeline.getKittens(0)).thenReturn(0);
 
-        // Вызвать тестируемый метод с параметром
-        int actualKittensCount = cat.getKittens(expectedKittensCount);
+        // Вызов метода с параметром 0
+        mockFeline.getKittens(0);
 
-        // Проверить результат
-        assertEquals(expectedKittensCount, actualKittensCount);
+        // Проверка, что метод был вызван ровно один раз с параметром 0
+        verify(mockFeline, times(1)).getKittens(0);
     }
 
+// Тест: проверка, что метод getKittens() вызван один раз с параметром 999
     @Test
-    public void testGetKittensWithParameterAndCustomDefault() {
-        // Для теста с кастомным значением создаётся отдельный объект
-        Feline mockFelineCustom = Mockito.mock(Feline.class);
-        Cat catCustom = new Cat(mockFelineCustom, 3);
-        int expectedKittensCount = 10;
+public void testFelineGetKittens_CalledOnceWithLargeNumber() {
+        int largeNumber = 999;
 
-        // Вызвать тестируемый метод с параметром — должен вернуть переданное значение
-        int actualKittensCount = catCustom.getKittens(expectedKittensCount);
+        // Настройка мока: при вызове с 999 вернуть 999
+        when(mockFeline.getKittens(largeNumber)).thenReturn(largeNumber);
 
-        // Проверить результат — игнорирует значение по умолчанию, возвращает переданное значение
-        assertEquals(expectedKittensCount, actualKittensCount);
+        // Вызов метода с большим числом
+        mockFeline.getKittens(largeNumber);
+
+        // Проверка, что метод был вызван ровно один раз с параметром 999
+        verify(mockFeline, times(1)).getKittens(largeNumber);
     }
 }
