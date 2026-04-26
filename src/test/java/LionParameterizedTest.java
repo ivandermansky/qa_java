@@ -18,71 +18,66 @@ import static org.mockito.Mockito.when;
 @RunWith(Parameterized.class)
 public class LionParameterizedTest {
 
-    // Параметры для теста (пол, ожидаемое значение hasMane)
+    // Параметры для теста
     private String sex;
     private boolean expectedHasMane;
-
-    private Feline mockFeline;
+    private int expectedKittens;
     private List<String> expectedFood;
 
-    // Конструктор для Parameterized (принимает параметры теста)
-    public LionParameterizedTest(String sex, boolean expectedHasMane) {
+    private Feline mockFeline;
+
+    public LionParameterizedTest(String sex, boolean expectedHasMane, int expectedKittens, List<String> expectedFood) {
         this.sex = sex;
         this.expectedHasMane = expectedHasMane;
+        this.expectedKittens = expectedKittens;
+        this.expectedFood = expectedFood;
     }
 
-    // Метод возвращает коллекцию параметров для теста
-    @Parameterized.Parameters(name = "Тестовые данные: пол={0}, грива={1}")
+    @Parameterized.Parameters(name = "Тестовые данные: пол={0}, грива={1}, котята={2}")
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][] {
-                {"Самец", true},      // самец, грива есть
-                {"Самка", false}      // самка, гривы нет
+                {"Самец", true, 5, Arrays.asList("Животные", "Птицы", "Рыба")},
+                {"Самка", false, 3, Arrays.asList("Животные", "Птицы")}
         });
     }
 
     @Before
     public void setUp() {
-        // Создать и настроить мок один раз перед каждым тестом
+        // Создать мок
         mockFeline = Mockito.mock(Feline.class);
-        expectedFood = Arrays.asList("Животные", "Птицы", "Рыба");
+
+        // Настроить мок
         try {
-            when(mockFeline.eatMeat()).thenReturn(expectedFood);
+            when(mockFeline.getKittens()).thenReturn(expectedKittens);
+            when(mockFeline.getFamily()).thenReturn("Кошачьи");
+            // Настроить getFood(String)
+            when(mockFeline.getFood("Хищник")).thenReturn(expectedFood);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Ошибка настройки мока", e);
         }
     }
 
-
     @Test
-    public void testGetKittens_UsesDefaultCount() throws Exception {
+    public void testHasManeCorrectValue() throws Exception {
         Lion lion = new Lion(sex, mockFeline);
-
-        assertEquals(2, lion.getKittens());
+        assertEquals(expectedHasMane, lion.doesHaveMane());
     }
 
     @Test
-    public void testHasMane_CorrectValue() throws Exception {
+    public void testGetKittensReturnsCorrectCount() throws Exception {
         Lion lion = new Lion(sex, mockFeline);
-
-        // Проверить наличие гривы (hasManeTrue)
-        assertEquals(expectedHasMane, lion.hasManeTrue());
+        assertEquals(expectedKittens, lion.getKittens());
     }
 
     @Test
-    public void testGetFood_ReturnsFromDependency() throws Exception {
+    public void testGetFoodReturnsFromDependency() throws Exception {
         Lion lion = new Lion(sex, mockFeline);
-
-        // Проверить метод getFood()
         assertEquals(expectedFood, lion.getFood());
     }
 
-    // Непараметризованный тест для проверок, которые не зависят от параметров
     @Test
-    public void testGetKittens_WithParameter_AlwaysReturnsGivenValue() throws Exception {
-        Lion lion = new Lion("Самец", mockFeline); // любые параметры
-        int customKittens = 7;
-
-        // Проверить метод getKittens(int) с явным указанием количества
-        assertEquals(customKittens, lion.getKittens(customKittens));
+    public void testGetFamilyReturnsFromFeline() throws Exception {
+        Lion lion = new Lion(sex, mockFeline);
+        assertEquals("Кошачьи", lion.getFamily());
     }
 }
