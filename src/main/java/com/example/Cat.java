@@ -1,6 +1,8 @@
 package com.example;
 
 import java.util.List;
+import com.example.Feline;
+import com.example.Predator;
 
 public class Cat {
 
@@ -11,11 +13,15 @@ public class Cat {
     }
 
     public String getSound() {
+
         return "Мяу";
     }
 
+
     public List<String> getFood() throws Exception {
+
         return predator.eatMeat();
     }
+
 
 }
