@@ -3,20 +3,19 @@ package com.example;
 import java.util.List;
 
 public class Lion {
-    public com.example.Animal animal;
+    private String sex;
+    private com.example.Predator predator;  // Зависимость теперь от интерфейса Predator
     private boolean hasMane;
     public int defaultKittensCount;
 
-    //  Сделан один основной конструктор с тремя параметрами.
-
-    public Lion(String sex, Animal animal, int defaultKittensCount) throws Exception {
-        if (animal == null) {
-            throw new IllegalArgumentException("Animal не может быть null");
+    // Конструктор теперь принимает Predator вместо Feline, потому что всё сломалось, пришлось всё писать заново и пришлось устранять так зависимость от Feline.
+    // К тому же это же будет зависимость от Feline, разве нет?
+    public Lion(String sex, com.example.Predator predator) throws Exception {
+        if (predator == null) {
+            throw new IllegalArgumentException("Predator не может быть null");
         }
 
-        if (defaultKittensCount <= 0) {
-            defaultKittensCount = 2;
-        }
+        defaultKittensCount = 2; // значение по умолчанию
 
         if ("Самец".equals(sex)) {
             hasMane = true;
@@ -25,17 +24,8 @@ public class Lion {
         } else {
             throw new Exception("Используйте допустимые значения пола животного — самец или самка");
         }
-        this.animal = animal;
-        this.defaultKittensCount = defaultKittensCount;
-    }
-
-    
-     //Сеттер для внедрения зависимости Animal.        
-    void setAnimal(com.example.Animal animal) {
-        if (animal == null) {
-            throw new IllegalArgumentException("Animal не может быть null");
-        }
-        this.animal = animal;
+        this.sex = sex;
+        this.predator = predator;
     }
 
     /*
@@ -64,16 +54,21 @@ public class Lion {
     }
 
     /*
-     - Получить список еды через зависимость от Animal.
+     - Получить список еды через зависимость от Predator.
      - Вернуть список продуктов питания
      - Выбросить Exception при ошибках получения пищи
      */
     public List<String> getFood() throws Exception {
-        return animal.getFood("Хищник");
+        return predator.eatMeat();  // Вызвать метод интерфейса
     }
 
-    // Геттер для тестирования
-    public com.example.Animal getAnimal() {
-        return this.animal;
+    // Геттер для тестирования — теперь возвращает Predator
+    public Predator getPredator() {
+        return this.predator;
+    }
+
+    // Геттер для пола
+    public String getSex() {
+        return this.sex;
     }
 }
